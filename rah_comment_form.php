@@ -13,61 +13,143 @@
  * http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-	function rah_comment_form($atts=array(),$thing='') {
-		global $is_article_list, $ign_user;
-		if($ign_user) {
-			$sep = (safe_field('val','txp_prefs',"name='permlink_mode'") == 'messy') ? '&' : '?';
-			if($is_article_list == false) {
-				$form =
-					'	<form id="rah_comment_form" action="'.permlink(array()).$sep.'rah_comment_save=1" method="post">'.n.
-					(($thing) ? parse($thing) : 
-					'		<ul>'.n.
-					'			<li class="label"><label for="rah_message">'.gTxt('comment_message').'</label></li>'.n.
-					'			<li class="textarea"><textarea name="rah_comment_message" id="rah_message" rows="6" cols="20"></textarea></li>'.n.
-					'			<li class="button"><button type="submit">'.gTxt('submit').'</button></li>'.n.
-					'		</ul>'.n).
-					'	</form>'.n;
-				
-				if(gps('rah_comment_save') == '1' && ps('rah_comment_message')){
-					$id = article_id(array());
-					$ip = doSlash(serverset('REMOTE_ADDR'));
-					$message = ps('rah_comment_message');
-					$message = substr(trim($message), 0, 65535);
-					$message = doSlash(markup_comment($message));
-					$name = doSlash($ign_user);
-
-					$check = safe_field("message","txp_discuss","name='$name' and parentid='$id' and message='$message' and ip='$ip'");
-					if($check) header('Location: '.permlink(array()));
-					else {
-						safe_insert(
-							"txp_discuss","
-								parentid = $id,
-								name = '$name',
-								ip = '$ip',
-								message = '$message',
-								visible = 1,
-								posted = now()"
-						);
-						$count = fetch('comments_count','textpattern','ID',$id);
-						$count = ($count) ? $count : 0;
-						$count = $count+1;
-						safe_update(
-							'textpattern',
-							"comments_count='".doSlash($count)."'",
-							"ID='$id'"
-						);
-
-						//Lets redirect
-
-						$cid = safe_field("discussid","txp_discuss","name='$name' and parentid='$id' and message='$message' and ip='$ip'");
-						header('Location: '.permlink(array()).$sep.'commented=1#c'.$cid);
-					}
-				}
-				return $form;
-			}
+	function rah_comment_form($atts, $thing=NULL) {
+		
+		global $is_article_list, $permlink_mode, $pretext;
+		
+		assert_article();
+	
+		extract(lAtts(array(
+			'id' => __FUNCTION__,
+			'class' => __FUNCTION__,
+			'action' => $pretext['request_uri'].'#'.__FUNCTION__,
+			'form' => __FUNCTION__,
+		), $atts));
+		
+		if($thing !== null) {
+			$thing = fetch_form($form);
 		}
+		
+		$user = is_logged_in();
+		
+		if(!$user) {
+			return;
+		}
+		
+		rah_comment_form::get()->save_form();
+		
+		return 
+			'<form id="'.htmlspecialchars($id).'" class="'.htmlspecialchars($class).'" method="post" action="'.htmlspecialchars($action).'">'.n.
+				'<div>'.n.
+					parse(EvalElse($thing, true)).n.
+					hInput('rah_comment_form_save', '1').n.
+					hInput('rah_comment_form_nonce', 'nonce').n. // TODO: implement nonce
+				'</div>'.n.
+			'</form>';
 	}
 
-	function rah_comment_message() {
-		return '<textarea name="rah_comment_message" rows="6" cols="20"></textarea>';
-	} ?>
+/**
+ * Returns comment message input
+ */
+
+	function rah_comment_message($atts) {
+		
+		$atts = array_merge(array(
+			'rows' => 6,
+			'cols' => 20,
+		), $atts);
+		
+		$atts['name'] = 'rah_comment_message';
+		
+		foreach($atts as $name => $value) {
+			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value)."'";
+		}
+	
+		return 
+			'<textarea '.implode(' ', $atts).'></textarea>';
+	}
+
+class rah_comment_form {
+
+	static public $instance = NULL;
+
+	/**
+	 * Gets an instance
+	 */
+
+	public function get() {
+		if(self::$instance === NULL) {
+			self::$instance = new rah_comment_form();
+		}
+		
+		return self::$instance;
+	}
+
+	/**
+	 * Saves a form
+	 */
+	
+	public function save_form() {
+		
+		global $thisarticle;
+		
+		extract(psa(array(
+			'rah_comment_form_save',
+			'rah_comment_form_nonce',
+			'rah_comment_form_message',
+		)));
+		
+		$user = is_logged_in();
+		
+		if(!$user || !$rah_comment_form_save) {
+			return;
+		}
+		
+		if(!$rah_comment_form_message) {
+			return;
+		}
+
+		$id = (int) article_id(array());
+		$ip = doSlash(remote_addr());
+
+		$message = doSlash(markup_comment(substr(trim($rah_comment_form_message), 0, 65535)));
+		$name = doSlash($user['name']);
+		$email = doSlash($user['email']);
+		
+		if(
+			safe_row(
+				'discussid',
+				'txp_discuss',
+				"name='{$name}' and parentid='{$id}' and message='{$message}' and ip='{$ip}'"
+			)
+		) {
+			return;
+		}
+		
+		$comment = 
+			safe_insert(
+				'txp_discuss',
+				"parentid={$id},
+				name='{$name}',
+				email='{$email}',
+				ip='{$ip}',
+				message='{$message}',
+				visible=1,
+				posted=now()"
+			);
+		
+		if($comment === false) {
+			return;
+		}
+		
+		safe_update(
+			'textpattern',
+			'comments_count=comments_count+1',
+			'ID='.$id
+		);
+		
+		//header('Location: '.permlink(array()).$sep.'#c'.$comment); TODO: redirect
+	}
+}
+	
+?>
