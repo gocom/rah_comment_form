@@ -45,7 +45,3 @@ h3. Version 0.2 - ?
 h3. Version 0.1 - 2008/09/07
 
 * Initial release.
-
-h2. Thanks to
-
-p. Thanks to Manfre for making mem_self_register and thanks to igner for making ign_password_protect. Great plugins, dudes.
