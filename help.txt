@@ -1,0 +1,103 @@
+h1. rah_comment_form
+
+p. Comment submiting with out comment preview, instead we use alternative spam protection: registeration. Registeration and login can be done with "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799 and "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520 - with out these plugins, this plugin, rah_comment_form is "useless", or it just doesn't work. Atleast, in words of code, rah_comment_form requires "ign_password_protect-plugin.":http://forum.textpattern.com/viewtopic.php?id=8799
+
+* Version: 0.3
+* Updated: 2009/08/09 3:50 PM GMT+3
+
+h3. Table of Contents
+
+* "Intro and description":#intro-and-description
+* "List of features":#list-of-features
+* "Requirements":#requirements
+* "Installation and usage":#installation-and-usage
+* "Attributes and tags":#attributes
+* "Examples":#examples
+* "Changelog":#changelog
+* "Thanks to":#thanks-to
+
+h3(#intro-and-description). Intro and description
+
+p. A Textpattern plugin used to remove the comment preview and allowing commenting only for the registered users. This plugin requires "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799 (allows loging in) and also "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520 is kinda important to be able to automaticate the registeration. To be able to comment or see the commenting form, user must be logged in via ign_password_protect.
+
+h3(#list-of-features). List of features
+
+* Removes comment preview.
+* Protection: only registered users can comment.
+* Comes with simple tag that outputs form - can also be used as container tag.
+
+h3(#requirements). Requirements
+
+p. Minimum requirements:
+
+* PHP 4.3.0
+* Textpattern 4.0.4+
+* "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799
+
+p. Recommended:
+
+* PHP 5.1.2+
+* Textpattern 4.0.6+
+* "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799
+* "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520
+
+h3(#installation-and-usage). Installation and usage
+
+p. The general behavior stands: paste plugin code to the plugin installer textarea and run the automatic setup. Then just activate the plugin and you are ready to use new tags that plugin includes like others.
+
+p. Basically the plugin's tags can only be used in individual article page, 'cause those output commenting form. The tag, @<txp:rah_comment_form />@, would ideally be used instead of the stannard @<txp:comments_form />@ that is by default located inside @comments_display@ form.
+
+h3(#attributes). Attributes and tags
+
+p. The plugin comes with two tags:
+
+h4. @<txp:rah_comment_form />@
+
+p. This tag, @<txp:rah_comment_form />@, outputs the commenting form. The tag can be used as container or as a sinle tag when it uses premade XHTML code.
+
+h4. @<txp:rah_comment_message />@
+
+p. Outputs comment message textarea. Can be used inside @<txp:rah_comment_form />@ when it is used as container tag. In example:
+
+bc. <txp:rah_comment_form><txp:rah_comment_message /></txp:rah_comment_form>
+
+h3(#examples). Examples
+
+h4. Example #1
+
+p. Code: @<txp:rah_comment_form />@
+
+p. Outputs:
+
+bc. <form id="rah_comment_form" action="" method="post">
+	<ul>
+		<li class="label"><label for="rah_message">Message</label></li>
+		<li class="textarea"><textarea name="rah_comment_message" id="rah_message" rows="6" cols="20"></textarea></li>
+		<li class="button"><button type="submit">Submit</button></li>
+	</ul>
+</form>
+
+h4. Example #2
+
+bc. <txp:rah_comment_form><txp:rah_comment_message /></txp:rah_comment_form>
+
+h3(#changelog). Changelog
+
+p. *Version 0.3*
+
+* Bug fix: Now uses the alternative container markup.
+* Bug fix: Changes form's @action@ based on permlink mode.
+
+p. *Version 0.2*
+
+* Bug fix: Now updates comments_count in the textpattern-table.
+** Textpattern's core in build tags do use it to check if article has comments.
+* Works on both: messy and clean URLs.
+
+p. *Version 0.1*
+
+* First release.
+
+h3(#thanks-to). Thanks to
+
+p. Thanks to Manfre for making mem_self_register and thanks to igner for making ign_password_protect. Great plugins, dudes.
