@@ -74,16 +74,16 @@ h3. Version 0.3 - 2009/08/09
 * Bug fix: Now uses the alternative container markup.
 * Bug fix: Changes form's @action@ based on permlink mode.
 
-p. Version 0.2
+h3. Version 0.2 - ?
 
 * Bug fix: Now updates comments_count in the textpattern-table.
 ** Textpattern's core in build tags do use it to check if article has comments.
 * Works on both: messy and clean URLs.
 
-p. Version 0.1
+h3. Version 0.1 - 2008/09/07
 
 * Initial release.
 
-h3(#thanks-to). Thanks to
+h2. Thanks to
 
 p. Thanks to Manfre for making mem_self_register and thanks to igner for making ign_password_protect. Great plugins, dudes.
