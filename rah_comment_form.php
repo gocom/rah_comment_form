@@ -1,11 +1,17 @@
-<?php	##################
-	#
-	#	rah_comment_form-plugin for Textpattern
-	#	version 0.3
-	#	by Jukka Svahn
-	#	http://rahforum.biz
-	#
-	###################
+<?php
+
+/**
+ * Rah_comment_form plugin for Textpattern CMS
+ *
+ * @author Jukka Svahn
+ * @date 2008-
+ * @license GNU GPLv2
+ * @link http://rahforum.biz/plugins/rah_comment_form
+ *
+ * Copyright (C) 2012 Jukka Svahn <http://rahforum.biz>
+ * Licensed under GNU Genral Public License version 2
+ * http://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 	function rah_comment_form($atts=array(),$thing='') {
 		global $is_article_list, $ign_user;
