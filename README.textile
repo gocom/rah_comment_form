@@ -1,73 +1,35 @@
 h1. rah_comment_form
 
-p. Comment submiting with out comment preview, instead we use alternative spam protection: registeration. Registeration and login can be done with "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799 and "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520 - with out these plugins, this plugin, rah_comment_form is "useless", or it just doesn't work. Atleast, in words of code, rah_comment_form requires "ign_password_protect-plugin.":http://forum.textpattern.com/viewtopic.php?id=8799
+p. Todo
 
-h2. Intro and description
+h2. Basics
 
-p. A Textpattern plugin used to remove the comment preview and allowing commenting only for the registered users. This plugin requires "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799 (allows loging in) and also "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520 is kinda important to be able to automaticate the registeration. To be able to comment or see the commenting form, user must be logged in via ign_password_protect.
-
-h2. List of features
-
-* Removes comment preview.
-* Protection: only registered users can comment.
-* Comes with simple tag that outputs form - can also be used as container tag.
+p. Todo
 
 h2. Requirements
 
-p. Minimum requirements:
+p. Rah_comment_form's minimum requirements:
 
-* PHP 4.3.0
-* Textpattern 4.0.4+
-* "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799
+* Textpattern v4.4.0
+* PHP v5.2
 
-p. Recommended:
+h2. Installing
 
-* PHP 5.1.2+
-* Textpattern 4.0.6+
-* "ign_password_protect":http://forum.textpattern.com/viewtopic.php?id=8799
-* "mem_self_register":http://forum.textpattern.com/viewtopic.php?id=8520
+p. Todo.
 
-h2. Installation and usage
+h2. Tags
 
-p. The general behavior stands: paste plugin code to the plugin installer textarea and run the automatic setup. Then just activate the plugin and you are ready to use new tags that plugin includes like others.
-
-p. Basically the plugin's tags can only be used in individual article page, 'cause those output commenting form. The tag, @<txp:rah_comment_form />@, would ideally be used instead of the stannard @<txp:comments_form />@ that is by default located inside @comments_display@ form.
-
-h2. Attributes and tags
-
-p. The plugin comes with two tags:
-
-h3. @<txp:rah_comment_form />@
-
-p. This tag, @<txp:rah_comment_form />@, outputs the commenting form. The tag can be used as container or as a sinle tag when it uses premade XHTML code.
-
-h3. @<txp:rah_comment_message />@
-
-p. Outputs comment message textarea. Can be used inside @<txp:rah_comment_form />@ when it is used as container tag. In example:
-
-bc. <txp:rah_comment_form><txp:rah_comment_message /></txp:rah_comment_form>
+p. Todo
 
 h2. Examples
 
-h3. Example #1
-
-p. Code: @<txp:rah_comment_form />@
-
-p. Outputs:
-
-bc. <form id="rah_comment_form" action="" method="post">
-	<ul>
-		<li class="label"><label for="rah_message">Message</label></li>
-		<li class="textarea"><textarea name="rah_comment_message" id="rah_message" rows="6" cols="20"></textarea></li>
-		<li class="button"><button type="submit">Submit</button></li>
-	</ul>
-</form>
-
-h3. Example #2
-
-bc. <txp:rah_comment_form><txp:rah_comment_message /></txp:rah_comment_form>
+p. Todo
 
 h2. Changelog
+
+h3. Version 0.4 - upcoming
+
+* Total rewrite.
 
 h3. Version 0.3 - 2009/08/09
 
