@@ -59,7 +59,7 @@
 			'cols' => 20,
 		), $atts);
 		
-		$atts['name'] = 'rah_comment_message';
+		$atts['name'] = 'rah_comment_form_message';
 		
 		foreach($atts as $name => $value) {
 			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value)."'";
@@ -77,7 +77,7 @@ class rah_comment_form {
 	 * Gets an instance
 	 */
 
-	public function get() {
+	static public function get() {
 		if(self::$instance === NULL) {
 			self::$instance = new rah_comment_form();
 		}
@@ -88,7 +88,7 @@ class rah_comment_form {
 	/**
 	 * Saves a form
 	 */
-	
+
 	public function save_form() {
 		
 		global $thisarticle;
