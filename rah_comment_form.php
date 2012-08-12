@@ -168,14 +168,14 @@ class rah_comment_form {
 			}
 		}
 		
-		$form = array('nonce', 'message', 'form_id');
-		
-		if(!$require_login) {
-			$form = array_merge($form, array('name', 'web', 'email'));
+		foreach(array('nonce', 'message', 'form_id') as $name) {
+			$this->form->$name = ps(__CLASS__.'_'.$name);
 		}
 		
-		foreach($form as $name) {
-			$this->form->$name = ps(__CLASS__.'_'.$name);
+		if(!$require_login) {
+			foreach(array('name', 'web', 'email') as $name) {
+				$this->form->$name = pcs(__CLASS__.'_'.$name);
+			}
 		}
 		
 		$this->form->parent = (int) article_id(array());
