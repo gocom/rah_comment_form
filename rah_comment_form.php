@@ -168,7 +168,7 @@ class rah_comment_form {
 			}
 		}
 		
-		$form = array('nonce', 'message', 'form_id');
+		$form = array('nonce', 'message', 'form_id', 'remember');
 		$comment = array('name', 'web', 'email');
 		
 		if(!$require_login) {
@@ -237,6 +237,12 @@ class rah_comment_form {
 
 		extract(doSlash((array) $this->form));
 		$message = doSlash(markup_comment(substr(trim($this->form->message), 0, 65535)));
+		
+		if($this->form->remember) {
+			foreach(array('name', 'email', 'web') as $n) {
+				setcookie(__CLASS__.'_'.$n, $this->form->$n, time()+(365*24*3600), '/');
+			}
+		}
 		
 		if(
 			safe_row(
