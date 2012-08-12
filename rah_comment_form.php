@@ -42,7 +42,7 @@
 			return;
 		}
 		
-		$form = new rah_comment_form($form_id, (bool) $require_login);
+		$form = new rah_comment_form($form_id, $require_login);
 		$form->save_form();
 		
 		return 
@@ -50,7 +50,7 @@
 				'<div>'.n.
 					parse(EvalElse($thing, true)).n.
 					hInput('rah_comment_form_nonce', 'nonce').n. // TODO: implement nonce
-					hInput('rah_comment_form_id', $form_id).n.
+					hInput('rah_comment_form_form_id', $form_id).n.
 				'</div>'.n.
 			'</form>';
 	}
@@ -228,9 +228,8 @@ class rah_comment_form {
 			return; // message is required
 		}
 
-		//$message = doSlash(markup_comment(substr(trim($rah_comment_form_message), 0, 65535)));
-		
-		extract(doSlash($this->form()));
+		extract(doSlash((array) $this->form));
+		$message = doSlash(markup_comment(substr(trim($this->form->message), 0, 65535)));
 		
 		if(
 			safe_row(
