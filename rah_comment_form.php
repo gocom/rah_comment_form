@@ -154,6 +154,7 @@ class rah_comment_form {
 	
 	public function __construct($form_id, $require_login) {
 		$this->form_id = $form_id;
+		$this->require_login = $require_login;
 		
 		$this->form = new stdClass();
 		$user = is_logged_in();
@@ -171,7 +172,7 @@ class rah_comment_form {
 		$form = array('nonce', 'message', 'form_id', 'remember');
 		$comment = array('name', 'web', 'email');
 		
-		if(!$require_login) {
+		if(!$this->require_login) {
 			$form = array_merge($form, $comment);
 		}
 		
@@ -187,11 +188,15 @@ class rah_comment_form {
 				$this->form->$name = '';
 			}
 			
-			if(!$require_login) {
+			if(!$this->require_login) {
 				foreach($comment as $name) {
 					$this->form->$name = cs(__CLASS__.'_'.$name);
 				}
 			}
+		}
+		
+		if($this->require_login) {
+			$this->form->remember = false;
 		}
 		
 		self::$instance = $this;
