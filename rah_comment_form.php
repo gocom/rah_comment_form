@@ -16,34 +16,41 @@
 	function rah_comment_form($atts, $thing=NULL) {
 		
 		global $is_article_list, $permlink_mode, $pretext;
+		static $instance = 1;
 		
 		assert_article();
 	
 		extract(lAtts(array(
-			'id' => __FUNCTION__,
 			'class' => __FUNCTION__,
-			'action' => $pretext['request_uri'].'#'.__FUNCTION__,
+			'action' => NULL,
 			'form' => __FUNCTION__,
+			'require_login' => 1,
 		), $atts));
 		
-		if($thing !== null) {
+		$form_id = (string) md5($instance++);
+		$id = __FUNCTION__ . '_' . $form_id;
+		
+		if($action === NULL) {
+			$action = $pretext['request_uri'].'#'.$id;
+		}
+		
+		if($thing === NULL) {
 			$thing = fetch_form($form);
 		}
 		
-		$user = is_logged_in();
-		
-		if(!$user) {
+		if($require_login && !is_logged_in()) {
 			return;
 		}
 		
-		rah_comment_form::get()->save_form();
+		$form = new rah_comment_form($form_id, (bool) $require_login);
+		$form->save_form();
 		
 		return 
-			'<form id="'.htmlspecialchars($id).'" class="'.htmlspecialchars($class).'" method="post" action="'.htmlspecialchars($action).'">'.n.
+			'<form id="'.$id.'" class="'.htmlspecialchars($class).'" method="post" action="'.htmlspecialchars($action).'">'.n.
 				'<div>'.n.
 					parse(EvalElse($thing, true)).n.
-					hInput('rah_comment_form_save', '1').n.
 					hInput('rah_comment_form_nonce', 'nonce').n. // TODO: implement nonce
+					hInput('rah_comment_form_id', $form_id).n.
 				'</div>'.n.
 			'</form>';
 	}
@@ -62,27 +69,145 @@
 		$atts['name'] = 'rah_comment_form_message';
 		
 		foreach($atts as $name => $value) {
-			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value)."'";
+			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value).'"';
 		}
 	
 		return 
-			'<textarea '.implode(' ', $atts).'></textarea>';
+			'<textarea '.implode(' ', $atts).'>'.htmlspecialchars(rah_comment_form::get()->form()->message).'</textarea>';
+	}
+
+/**
+ * Returns a comment web input
+ */
+
+	function rah_comment_input($atts) {
+		
+		$atts = array_merge(array(
+			'type' => 'text',
+			'name' => 'name',
+		), $atts);
+		
+		$name = $atts['name'];
+		$atts['value'] = rah_comment_form::get()->form()->$name;
+		$atts['name'] = 'rah_comment_form_' . $name;
+		
+		foreach($atts as $name => $value) {
+			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value).'"';
+		}
+		
+		return '<input '.implode(' ', $atts).' />';
+	}
+
+/**
+ * Displays lis of form validation errors
+ */
+
+	function rah_comment_errors($atts) {
+
+		extract(lAtts(array(
+			'wraptag' => 'ul',
+			'class' => __FUNCTION__,
+			'break' => 'li',
+		), $atts));
+
+		$errors = rah_comment_form::get()->errors();
+		return doWrap($errors, $wraptag, $break, $class);
 	}
 
 class rah_comment_form {
 
+	/**
+	 * @var obj Stores an instance of the class
+	 */
+
 	static public $instance = NULL;
+	
+	/**
+	 * @var string Stores the form's instance id
+	 */
+	
+	protected $form_id;
+	
+	/**
+	 * @var array Form errors
+	 */
+	
+	protected $errors = array();
+	
+	/**
+	 * @var obj Form data
+	 */
+	
+	protected $form = array();
 
 	/**
 	 * Gets an instance
 	 */
 
 	static public function get() {
-		if(self::$instance === NULL) {
-			self::$instance = new rah_comment_form();
+		return self::$instance;
+	}
+	
+	/**
+	 * Constructor
+	 */
+	
+	public function __construct($form_id, $require_login) {
+		$this->form_id = $form_id;
+		
+		$this->form = new stdClass();
+		$user = is_logged_in();
+		
+		$this->form->name = null;
+		$this->form->email = null;
+		$this->form->web = null;
+		
+		if(is_array($user)) {
+			foreach($user as $name => $value) {
+				$this->form->$name = $value;
+			}
 		}
 		
-		return self::$instance;
+		$form = array('nonce', 'message', 'form_id');
+		
+		if(!$require_login) {
+			$form = array_merge($form, array('name', 'web', 'email'));
+		}
+		
+		foreach($form as $name) {
+			$this->form->$name = ps(__CLASS__.'_'.$name);
+		}
+		
+		$this->form->parent = (int) article_id(array());
+		$this->form->ip = remote_addr();
+		
+		if($this->form->form_id !== $this->form_id) {
+			foreach($this->form as $name => $value) {
+				$this->form->$name = '';
+			}
+		}
+		
+		self::$instance = $this;
+	}
+	
+	/**
+	 * Error
+	 * @param string $msg
+	 * @param string $field
+	 * @return obj
+	 */
+	
+	public function error($msg, $field=NULL) {
+		$this->errors[] = array($field, $msg);
+		return $this;
+	}
+	
+	/**
+	 * Gets a value
+	 */
+	
+	public function __call($name, $args) {
+		return $this->$name;
 	}
 
 	/**
@@ -91,36 +216,27 @@ class rah_comment_form {
 
 	public function save_form() {
 		
-		global $thisarticle;
-		
-		extract(psa(array(
-			'rah_comment_form_save',
-			'rah_comment_form_nonce',
-			'rah_comment_form_message',
-		)));
-		
-		$user = is_logged_in();
-		
-		if(!$user || !$rah_comment_form_save) {
+		if(!$this->form->form_id || $this->form->form_id !== $this->form_id) {
 			return;
 		}
 		
-		if(!$rah_comment_form_message) {
-			return;
+		if(!$this->form->name) {
+			return; // name is required, or log in
+		}
+		
+		if(!$this->form->message) {
+			return; // message is required
 		}
 
-		$id = (int) article_id(array());
-		$ip = doSlash(remote_addr());
-
-		$message = doSlash(markup_comment(substr(trim($rah_comment_form_message), 0, 65535)));
-		$name = doSlash($user['name']);
-		$email = doSlash($user['email']);
+		//$message = doSlash(markup_comment(substr(trim($rah_comment_form_message), 0, 65535)));
+		
+		extract(doSlash($this->form()));
 		
 		if(
 			safe_row(
 				'discussid',
 				'txp_discuss',
-				"name='{$name}' and parentid='{$id}' and message='{$message}' and ip='{$ip}'"
+				"name='{$name}' and parentid='{$parent}' and message='{$message}' and ip='{$ip}'"
 			)
 		) {
 			return;
@@ -129,7 +245,7 @@ class rah_comment_form {
 		$comment = 
 			safe_insert(
 				'txp_discuss',
-				"parentid={$id},
+				"parentid={$parent},
 				name='{$name}',
 				email='{$email}',
 				ip='{$ip}',
@@ -145,10 +261,10 @@ class rah_comment_form {
 		safe_update(
 			'textpattern',
 			'comments_count=comments_count+1',
-			'ID='.$id
+			'ID='.$parent
 		);
 		
-		//header('Location: '.permlink(array()).$sep.'#c'.$comment); TODO: redirect
+		header('Location: '.permlink(array()).'#c'.$comment);
 	}
 }
 	
