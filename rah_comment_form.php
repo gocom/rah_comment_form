@@ -138,7 +138,7 @@ class rah_comment_form {
 	 * @var obj Form data
 	 */
 	
-	protected $form = array();
+	protected $form;
 
 	/**
 	 * Gets an instance
