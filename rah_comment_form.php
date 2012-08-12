@@ -168,22 +168,29 @@ class rah_comment_form {
 			}
 		}
 		
-		foreach(array('nonce', 'message', 'form_id') as $name) {
-			$this->form->$name = ps(__CLASS__.'_'.$name);
-		}
+		$form = array('nonce', 'message', 'form_id');
+		$comment = array('name', 'web', 'email');
 		
 		if(!$require_login) {
-			foreach(array('name', 'web', 'email') as $name) {
-				$this->form->$name = pcs(__CLASS__.'_'.$name);
-			}
+			$form = array_merge($form, $comment);
+		}
+		
+		foreach($form as $name) {
+			$this->form->$name = ps(__CLASS__.'_'.$name);
 		}
 		
 		$this->form->parent = (int) article_id(array());
 		$this->form->ip = remote_addr();
 		
 		if($this->form->form_id !== $this->form_id) {
-			foreach($this->form as $name => $value) {
+			foreach($form as $name => $value) {
 				$this->form->$name = '';
+			}
+			
+			if(!$require_login) {
+				foreach($comment as $name) {
+					$this->form->$name = cs(__CLASS__.'_'.$name);
+				}
 			}
 		}
 		
