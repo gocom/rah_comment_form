@@ -210,7 +210,7 @@ class rah_comment_form {
 	 */
 	
 	public function error($msg, $field=NULL) {
-		$this->errors[] = array($field, $msg);
+		$this->errors[] = $msg;
 		return $this;
 	}
 	
@@ -228,15 +228,31 @@ class rah_comment_form {
 
 	public function save_form() {
 		
-		if(!$this->form->form_id || $this->form->form_id !== $this->form_id) {
+		global $prefs;
+		
+		if($this->form->form_id !== $this->form_id) {
 			return;
 		}
 		
 		if(!$this->form->name) {
-			return; // name is required, or log in
+		
+			if($prefs['comments_require_name']) {
+				$this->error(gTxt('comment_name_required'));
+				return; // name is required
+			}
+			
+			if($this->require_login) {
+				return; // log in
+			}
+		}
+		
+		if($prefs['comments_require_email'] && !$this->form->email) {
+			$this->error(gTxt('comment_email_required'));
+			return; // email is required
 		}
 		
 		if(!$this->form->message) {
+			$this->error(gTxt('comment_required'));
 			return; // message is required
 		}
 
