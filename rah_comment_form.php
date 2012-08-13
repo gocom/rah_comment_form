@@ -157,27 +157,25 @@ class rah_comment_form {
 		$this->form_id = $form_id;
 		$this->require_login = $require_login;
 		
+		$poster = array('name', 'web', 'email');
+		$form = array('nonce', 'message', 'form_id', 'remember');
+		$user = (array) is_logged_in();
+		
 		$this->form = new stdClass();
-		$this->form->name = null;
-		$this->form->email = null;
-		$this->form->web = null;
 		$this->form->parent = (int) article_id(array());
 		$this->form->ip = remote_addr();
 		$this->form->visible = VISIBLE;
 		
-		$user = is_logged_in();
-		
-		if(is_array($user)) {
-			foreach($user as $name => $value) {
-				$this->form->$name = $value;
-			}
+		if($this->require_login) {
+			$this->form->remember = false;
+		}
+
+		foreach($poster as $name) {
+			$this->form->$name = isset($user[$name]) ? $user[$name] : null;
 		}
 		
-		$form = array('nonce', 'message', 'form_id', 'remember');
-		$comment = array('name', 'web', 'email');
-		
 		if(!$this->require_login) {
-			$form = array_merge($form, $comment);
+			$form = array_merge($form, $poster);
 		}
 		
 		foreach($form as $name) {
@@ -194,10 +192,6 @@ class rah_comment_form {
 					$this->form->$name = cs(__CLASS__.'_'.$name);
 				}
 			}
-		}
-		
-		if($this->require_login) {
-			$this->form->remember = false;
 		}
 		
 		self::$instance = $this;
