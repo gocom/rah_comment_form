@@ -60,7 +60,7 @@
  * Returns comment message input
  */
 
-	function rah_comment_message($atts) {
+	function rah_comment_message($atts, $thing=null) {
 		
 		$atts = array_merge(array(
 			'rows' => 6,
@@ -72,9 +72,13 @@
 		foreach($atts as $name => $value) {
 			$atts[$name] = htmlspecialchars($name).'="'.htmlspecialchars($value).'"';
 		}
+		
+		if($thing === null) {
+			$thing = rah_comment_form::get()->form()->message;
+		}
 	
 		return 
-			'<textarea '.implode(' ', $atts).'>'.htmlspecialchars(rah_comment_form::get()->form()->message).'</textarea>';
+			'<textarea '.implode(' ', $atts).'>'.htmlspecialchars($thing).'</textarea>';
 	}
 
 /**
