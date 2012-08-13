@@ -51,6 +51,7 @@
 					parse(EvalElse($thing, true)).n.
 					hInput('rah_comment_form_nonce', 'nonce').n. // TODO: implement nonce
 					hInput('rah_comment_form_form_id', $form_id).n.
+					callback_event('rah_comment_form.form').n.
 				'</div>'.n.
 			'</form>';
 	}
@@ -238,24 +239,26 @@ class rah_comment_form {
 		
 			if($prefs['comments_require_name']) {
 				$this->error(gTxt('comment_name_required'));
-				return; // name is required
+				return;
 			}
 			
 			if($this->require_login) {
-				return; // log in
+				return;
 			}
 		}
 		
 		if($prefs['comments_require_email'] && !$this->form->email) {
 			$this->error(gTxt('comment_email_required'));
-			return; // email is required
+			return;
 		}
 		
 		if(!$this->form->message) {
 			$this->error(gTxt('comment_required'));
-			return; // message is required
+			return;
 		}
 
+		callback_event(__CLASS__.'.save');
+		
 		extract(doSlash((array) $this->form));
 		$message = doSlash(markup_comment(substr(trim($this->form->message), 0, 65535)));
 		
@@ -290,6 +293,8 @@ class rah_comment_form {
 		if($comment === false) {
 			return;
 		}
+		
+		callback_event(__CLASS__.'.saved', '', false, $this->form);
 		
 		safe_update(
 			'textpattern',
