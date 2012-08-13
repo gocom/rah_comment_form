@@ -158,11 +158,14 @@ class rah_comment_form {
 		$this->require_login = $require_login;
 		
 		$this->form = new stdClass();
-		$user = is_logged_in();
-		
 		$this->form->name = null;
 		$this->form->email = null;
 		$this->form->web = null;
+		$this->form->parent = (int) article_id(array());
+		$this->form->ip = remote_addr();
+		$this->form->visible = VISIBLE;
+		
+		$user = is_logged_in();
 		
 		if(is_array($user)) {
 			foreach($user as $name => $value) {
@@ -180,9 +183,6 @@ class rah_comment_form {
 		foreach($form as $name) {
 			$this->form->$name = ps(__CLASS__.'_'.$name);
 		}
-		
-		$this->form->parent = (int) article_id(array());
-		$this->form->ip = remote_addr();
 		
 		if($this->form->form_id !== $this->form_id) {
 			foreach($form as $name => $value) {
@@ -286,7 +286,7 @@ class rah_comment_form {
 				email='{$email}',
 				ip='{$ip}',
 				message='{$message}',
-				visible=1,
+				visible='{$visible}',
 				posted=now()"
 			);
 		
