@@ -188,7 +188,7 @@ class rah_comment_form {
 			}
 			
 			if(!$this->require_login) {
-				foreach($comment as $name) {
+				foreach($poster as $name) {
 					$this->form->$name = cs(__CLASS__.'_'.$name);
 				}
 			}
