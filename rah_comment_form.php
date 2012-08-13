@@ -95,7 +95,10 @@
 			return;
 		}
 		
-		$atts['value'] = rah_comment_form::get()->form()->$name;
+		if(!isset($atts['value'])) {
+			$atts['value'] = rah_comment_form::get()->form()->$name;
+		}
+			
 		$atts['name'] = 'rah_comment_form_' . $name;
 		
 		foreach($atts as $name => $value) {
