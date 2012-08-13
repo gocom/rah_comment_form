@@ -89,6 +89,12 @@
 		), $atts);
 		
 		$name = $atts['name'];
+		
+		if(!isset(rah_comment_form::get()->form()->$name)) {
+			trigger_error(gTxt('invalid_attribute_value', array('{name}' => 'name')));
+			return;
+		}
+		
 		$atts['value'] = rah_comment_form::get()->form()->$name;
 		$atts['name'] = 'rah_comment_form_' . $name;
 		
