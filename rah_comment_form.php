@@ -242,7 +242,7 @@ class rah_comment_form {
 			return;
 		}
 		
-		if(!$this->form->name) {
+		if($this->form->name === '') {
 		
 			if($prefs['comments_require_name']) {
 				$this->error(gTxt('comment_name_required'));
