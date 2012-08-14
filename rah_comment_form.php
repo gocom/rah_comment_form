@@ -303,7 +303,7 @@ class rah_comment_form {
 		callback_event(__CLASS__.'.saved', '', false, $this->form);
 		update_comments_count($this->form->parent);
 		
-		header('Location: '.permlink(array()).'#c'.$comment);
+		header('Location: '.permlink(array()).'#c'.str_pad($comment, 6, '0', STR_PAD_LEFT));
 	}
 }
 	
