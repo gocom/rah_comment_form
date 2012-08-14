@@ -16,7 +16,6 @@
 	function rah_comment_form($atts, $thing=NULL) {
 		
 		global $is_article_list, $permlink_mode, $pretext;
-		static $instance = 1;
 		
 		assert_article();
 	
@@ -27,30 +26,27 @@
 			'require_login' => 1,
 		), $atts));
 		
-		$form_id = (string) md5($instance++);
-		$id = __FUNCTION__ . '_' . $form_id;
+		if($require_login && !is_logged_in()) {
+			return;
+		}
+		
+		$form = new rah_comment_form($require_login);
+		$form->save_form();
 		
 		if($action === NULL) {
-			$action = $pretext['request_uri'].'#'.$id;
+			$action = $pretext['request_uri'].'#'.$form->form_id();
 		}
 		
 		if($thing === NULL) {
 			$thing = fetch_form($form);
 		}
 		
-		if($require_login && !is_logged_in()) {
-			return;
-		}
-		
-		$form = new rah_comment_form($form_id, $require_login);
-		$form->save_form();
-		
 		return 
-			'<form id="'.$id.'" class="'.htmlspecialchars($class).'" method="post" action="'.htmlspecialchars($action).'">'.n.
+			'<form id="rah_comment_form_'.$form->form_id().'" class="'.htmlspecialchars($class).'" method="post" action="'.htmlspecialchars($action).'">'.n.
 				'<div>'.n.
 					parse(EvalElse($thing, true)).n.
 					hInput('rah_comment_form_nonce', 'nonce').n. // TODO: implement nonce
-					hInput('rah_comment_form_form_id', $form_id).n.
+					hInput('rah_comment_form_form_id', $form->form_id()).n.
 					callback_event('rah_comment_form.form').n.
 				'</div>'.n.
 			'</form>';
@@ -137,6 +133,12 @@ class rah_comment_form {
 	static public $instance = NULL;
 	
 	/**
+	 * @var int Unique seed
+	 */
+	
+	static public $uid_seed = 0;
+	
+	/**
 	 * @var string Stores the form's instance id
 	 */
 	
@@ -166,10 +168,10 @@ class rah_comment_form {
 	 * Constructor
 	 */
 	
-	public function __construct($form_id, $require_login) {
+	public function __construct($require_login) {
 		global $prefs;
 		
-		$this->form_id = $form_id;
+		$this->form_id = md5(self::$uid_seed++);
 		$this->require_login = $require_login;
 		
 		$poster = array('name', 'web', 'email');
