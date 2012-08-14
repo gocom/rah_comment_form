@@ -301,12 +301,7 @@ class rah_comment_form {
 		}
 		
 		callback_event(__CLASS__.'.saved', '', false, $this->form);
-		
-		safe_update(
-			'textpattern',
-			'comments_count=comments_count+1',
-			'ID='.$parent
-		);
+		update_comments_count($this->form->parent);
 		
 		header('Location: '.permlink(array()).'#c'.$comment);
 	}
