@@ -184,7 +184,7 @@ class rah_comment_form {
 		}
 
 		foreach($poster as $name) {
-			$this->form->$name = $this->require_login && isset($user[$name]) ? $user[$name] : null;
+			$this->form->$name = $this->require_login && isset($user[$name]) ? $user[$name] : '';
 		}
 		
 		if(!$this->require_login) {
