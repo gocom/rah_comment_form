@@ -263,11 +263,10 @@ class rah_comment_form {
 			$this->error(gTxt('comment_required'));
 			return;
 		}
-
-		callback_event(__CLASS__.'.save');
 		
+		callback_event(__CLASS__.'.save');
 		extract(doSlash((array) $this->form));
-		$message = doSlash(markup_comment(substr(trim($this->form->message), 0, 65535)));
+		$message = markup_comment(substr(trim($this->form->message), 0, 65535));
 		
 		if($this->form->remember) {
 			foreach(array('name', 'email', 'web') as $n) {
@@ -275,13 +274,13 @@ class rah_comment_form {
 			}
 		}
 		
-		if(
-			safe_row(
-				'discussid',
-				'txp_discuss',
-				"name='{$name}' and parentid='{$parent}' and message='{$message}' and ip='{$ip}'"
-			)
-		) {
+		$r = safe_row(
+			'name, message',
+			'txp_discuss',
+			"parentid='{$parent}' order by discussid desc limit 1" // TODO: prevent caching, queuing
+		);
+		
+		if($r && $r['name'] === $this->form->name && $r['message'] === $message) {
 			return;
 		}
 		
@@ -292,7 +291,7 @@ class rah_comment_form {
 				name='{$name}',
 				email='{$email}',
 				ip='{$ip}',
-				message='{$message}',
+				message='".doSlash($message)."',
 				visible='{$visible}',
 				posted=now()"
 			);
