@@ -167,6 +167,8 @@ class rah_comment_form {
 	 */
 	
 	public function __construct($form_id, $require_login) {
+		global $prefs;
+		
 		$this->form_id = $form_id;
 		$this->require_login = $require_login;
 		
@@ -182,7 +184,11 @@ class rah_comment_form {
 		if($this->require_login) {
 			$this->form->remember = false;
 		}
-
+		
+		if($prefs['comments_moderate']) {
+			$this->form->visible = MODERATE;
+		}
+		
 		foreach($poster as $name) {
 			$this->form->$name = $this->require_login && isset($user[$name]) ? $user[$name] : '';
 		}
@@ -299,11 +305,18 @@ class rah_comment_form {
 		if($comment === false) {
 			return;
 		}
-		
+
 		callback_event(__CLASS__.'.saved', '', false, $this->form);
 		update_comments_count($this->form->parent);
 		txp_status_header('302 Found');
-		header('Location: '.permlink(array()).'#c'.str_pad($comment, 6, '0', STR_PAD_LEFT));
+		
+		if($this->form->visible === VISIBLE) {
+			header('Location: '.permlink(array()).'#c'.str_pad($comment, 6, '0', STR_PAD_LEFT));
+		}
+		
+		else {
+			$this->form->message = '';
+		}
 	}
 }
 	
